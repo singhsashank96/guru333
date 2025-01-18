@@ -21,6 +21,8 @@ app.get("/", (req, res) => {
 
 app.use("/user", require("././Routes/auth_routes.js"));
 app.use("/payment", require("././Routes/payment_routes.js"));
+app.use("/game", require("././Routes/game_routes.js"));
+
 
 
 // Static files
