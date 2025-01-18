@@ -26,7 +26,7 @@ app.use("/game", require("././Routes/game_routes.js"));
 
 
 // Static files
-app.use("/uploads", express.static(path.join(__dirname, "./uploads")));
+// app.use("/uploads", express.static(path.join(__dirname, "./uploads")));
 
 // Server setup
 const server = http.createServer(app);

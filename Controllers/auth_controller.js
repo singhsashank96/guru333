@@ -274,6 +274,7 @@ const getUserById = async (req, res) => {
     // Extract user ID from request parameters
     const userId = req.params.id;
 
+
     // Fetch the user by ID and exclude the password field
     const user = await User.findById(userId).select("-password");
 
@@ -320,6 +321,36 @@ const updateprofile = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+const UpdateProfileName = async (req, res) => {
+  const { id } = req.params; // User ID from the route
+  const { name } = req.body; // New username from the request body
+
+  if (!name) {
+    return res.status(400).json({ message: "Name is required" });
+  }
+
+  try {
+    // Find the user by ID and update the name
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { name },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
 
 const sendotp = async (req, res) => {
   try {
@@ -488,5 +519,6 @@ module.exports = {
   updateCoins ,
   getUserById , 
   UserRegister ,
+  UpdateProfileName 
 
 }
