@@ -32,6 +32,6 @@ router.get("/" , allUser);
 router.get("/user/:id", getUserById);
 router.put("/update/:id" , UpdateProfileName);
 
-router.put("/update", fetchuser, updateprofile);
+router.put("/update", updateprofile);
 router.post("/getotp", sendotp);
 module.exports = router;

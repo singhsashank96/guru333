@@ -295,32 +295,44 @@ const getUserById = async (req, res) => {
 
 const updateprofile = async (req, res) => {
   try {
-    const dbuser = await User.findById(req.user.id);
+    // Check if user ID is provided in the payload
+    const { id, oldpassword, newpassword } = req.body;
+    if (!id) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
 
-    if (req.body.newpassword) {
-      const passwordCompare = await bcrypt.compare(
-        req.body.oldpassword,
-        dbuser.password
-      );
+    // Fetch the user from the database
+    const dbuser = await User.findById(id);
+    if (!dbuser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // If a new password is provided, verify the old password and update
+    if (newpassword) {
+      const passwordCompare = await bcrypt.compare(oldpassword, dbuser.password);
       if (!passwordCompare) {
         return res.status(400).json({
-          error: "Invalid Credentials",
+          error: "Invalid old password",
         });
       }
 
+      // Hash the new password
       const salt = await bcrypt.genSalt(10);
-      const secPass = await bcrypt.hash(req.body.newpassword, salt);
-      req.body.password = secPass;
+      const secPass = await bcrypt.hash(newpassword, salt);
 
-      delete req.body.oldpassword;
-      delete req.body.newpassword;
+      // Update the password in the database
+      await User.findByIdAndUpdate(id, { password: secPass });
+
+      return res.status(200).json({ message: "Password updated successfully" });
+    } else {
+      return res.status(400).json({ error: "New password is required" });
     }
-    await User.findByIdAndUpdate(req.user.id, req.body);
-    res.status(200).json({ message: "Profile Updated" });
   } catch (error) {
+    console.error(error);
     res.status(500).send("Internal Server Error");
   }
 };
+
 
 const UpdateProfileName = async (req, res) => {
   const { id } = req.params; // User ID from the route
