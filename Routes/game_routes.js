@@ -9,7 +9,7 @@ const {
   deleteGame,
   getGames,
   getGameById,
-  playGame,
+  playGame, addUserGame , getUserGame
 } = require("../Controllers/gameController");
 
 // Middleware to check admin access
@@ -24,6 +24,11 @@ router.delete("/:id", deleteGame); // Delete a game
 router.get("/", getGames); // Get all games
 router.get("/:id", getGameById); // Get a game by ID
 router.post("/play/:id", playGame); // Play a game
+
+router.post("/addUserGame", addUserGame); // Play a game
+router.get("/play/user", getUserGame); // Play a game
+
+
 
 
 
