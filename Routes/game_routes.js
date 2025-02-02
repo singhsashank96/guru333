@@ -26,7 +26,7 @@ router.get("/:id", getGameById); // Get a game by ID
 router.post("/play/:id", playGame); // Play a game
 
 router.post("/addUserGame", addUserGame); // Play a game
-router.get("/play/user", getUserGame); // Play a game
+router.post("/getUserGame", getUserGame); // Play a game
 
 
 

@@ -194,7 +194,7 @@ const addUserGame = async (req, res) => {
 
 
 const getUserGame = async (req, res) => {
-  const { userId } = req.params;
+  const { userId } = req.body;
 
   try {
     // Find the user game record
