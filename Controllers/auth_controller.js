@@ -165,51 +165,42 @@ const UserRegister = async (req, res) => {
 
 
 const login = async (req, res) => {
-  console.log("login request received");
+  console.log("Login request received ✅");
 
   try {
     const { phoneNum, password, otp } = req.body;
 
+    // ✅ Input Validation
     if (!phoneNum || (!password && !otp)) {
-      return res.status(400).json({
-        error: "Please fill all the fields",
-      });
+      return res.status(400).json({ error: "Please fill all the fields" });
     }
 
-    const user = await User.findOne({
-      phoneNum: phoneNum,
-    });
+    const user = await User.findOne({ phoneNum: phoneNum.trim() });  // Trim for safety
 
     if (!user) {
-      return res.status(400).json({
-        error: "Invalid Credentials",
-      });
+      return res.status(400).json({ error: "Invalid Credentials" });
     }
-    console.log("hii");
+
+    // 🔐 OTP Validation
     if (otp) {
-      if (user.otp != otp) {
-        return res.status(400).json({
-          error: "Invalid otp",
-        });
+      if (user.otp !== otp) {
+        return res.status(400).json({ error: "Invalid OTP" });
       }
-      user.otp = "";
+      user.otp = ""; // Clear OTP after verification
       await user.save();
     } else {
       const passwordCompare = await bcrypt.compare(password, user.password);
       if (!passwordCompare) {
-        return res.status(400).json({
-          error: "Invalid Credentials",
-        });
+        return res.status(400).json({ error: "Invalid Credentials" });
       }
     }
 
-    const data = {
-      user: {
-        id: user.id,
-      },
-    };
+    // 🎯 JWT Token Generation
+    const data = { user: { id: user.id } };
+    const authtoken = jwt.sign(data, JWT_SECRET, { expiresIn: "12h" }); // Added expiry
 
-    const authtoken = jwt.sign(data, JWT_SECRET);
+    console.log("Token generated successfully ✅");
+
     res.json({
       authtoken,
       user: {
@@ -220,11 +211,10 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error.message);
+    console.error("Login Error:", error.message);
     res.status(500).send("Internal Server Error");
   }
 };
-
 
 
 
@@ -273,7 +263,7 @@ const getUserById = async (req, res) => {
   try {
     // Extract user ID from request parameters
     const userId = req.params.id;
-
+    console.log("helll")
 
     // Fetch the user by ID and exclude the password field
     const user = await User.findById(userId).select("-password");

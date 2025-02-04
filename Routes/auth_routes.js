@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const fetchuser = require("../middleware/fetchUser.js");
+const { fetchuser } = require("../middleware/fetchUser.js");
 const multer = require("multer");
 const {
   register,
@@ -29,7 +29,7 @@ router.post("/addCoins", addCoins);
 router.put("/userCoins", updateCoins)
 
 router.get("/" , allUser);
-router.get("/user/:id", getUserById);
+router.get("/user/:id" , fetchuser ,  getUserById);
 router.put("/update/:id" , UpdateProfileName);
 
 router.put("/update", updateprofile);
