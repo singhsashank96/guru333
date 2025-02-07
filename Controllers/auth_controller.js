@@ -208,6 +208,7 @@ const login = async (req, res) => {
         name: user.name,
         phoneNum: user.phoneNum,
         profilePic: user.profilePic,
+        role : user.role , 
       },
     });
   } catch (error) {
