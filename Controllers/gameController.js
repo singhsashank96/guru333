@@ -14,36 +14,61 @@ const PDFDocument = require("pdfkit");
 //   }
 // };
 
+// const createGame = async (req, res) => {
+//   try {
+//     const { name, description, startTime, endTime } = req.body;
+
+//     // Helper function to convert hh:mm:ss A format to ISO string
+//     const convertToISO = (timeString) => {
+//       const [time, modifier] = timeString.split(" ");
+//       let [hours, minutes, seconds] = time.split(":").map(Number);
+
+//       if (modifier === "PM" && hours !== 12) {
+//         hours += 12;
+//       } else if (modifier === "AM" && hours === 12) {
+//         hours = 0;
+//       }
+
+//       const now = new Date(); // Use today's date
+//       now.setHours(hours, minutes, seconds, 0);
+//       return now.toISOString();
+//     };
+
+//     // Convert startTime and endTime to ISO format
+//     const startISO = convertToISO(startTime);
+//     const endISO = convertToISO(endTime);
+
+//     // Create the game
+//     const newGame = await Game.create({
+//       name,
+//       description,
+//       startTime: startISO,
+//       endTime: endISO,
+//     });
+
+//     res.status(201).json({ success: true, data: newGame });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
+
+
+
+
+
+
+
 const createGame = async (req, res) => {
   try {
-    const { name, description, startTime, endTime } = req.body;
+    const { name, description, startTime, closeTime } = req.body;
 
-    // Helper function to convert hh:mm:ss A format to ISO string
-    const convertToISO = (timeString) => {
-      const [time, modifier] = timeString.split(" ");
-      let [hours, minutes, seconds] = time.split(":").map(Number);
-
-      if (modifier === "PM" && hours !== 12) {
-        hours += 12;
-      } else if (modifier === "AM" && hours === 12) {
-        hours = 0;
-      }
-
-      const now = new Date(); // Use today's date
-      now.setHours(hours, minutes, seconds, 0);
-      return now.toISOString();
-    };
-
-    // Convert startTime and endTime to ISO format
-    const startISO = convertToISO(startTime);
-    const endISO = convertToISO(endTime);
-
-    // Create the game
+    // Directly use startTime and closeTime as they are already in ISO format
     const newGame = await Game.create({
       name,
       description,
-      startTime: startISO,
-      endTime: endISO,
+      startTime, // Already in ISO format
+      endTime: closeTime, // Rename closeTime to endTime as required by your schema
     });
 
     res.status(201).json({ success: true, data: newGame });
@@ -51,6 +76,7 @@ const createGame = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 
 // Edit a game (Admin)
