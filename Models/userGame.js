@@ -20,10 +20,16 @@ const userGameSchema = new mongoose.Schema({
         betAmount: { type: Number, required: true }, // Amount of money the user has bet
       result: { type: String }, // Result of the game (optional)
       status: { type:String  }, // Status of the game (optional)
+      bidDate: { type: Date, default: Date.now } // Date when the game was added
+
     },
   ],
   totalBetAmount: { type: Number, default: 0 }, // Total bet amount placed by the user (optional)
-  createdAt: { type: Date, default: Date.now }, // Timestamp when the record was created
-});
+  // Timestamp when the record was created
+} ,
+{
+  timestamps: true, // Enables both createdAt and updatedAt fields
+}
+);
 
 module.exports = mongoose.model("UserGame", userGameSchema);

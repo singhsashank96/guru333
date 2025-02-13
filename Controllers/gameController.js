@@ -1,6 +1,7 @@
 const Game = require("../Models/Game"); // Assuming you have a Game model
 const UserGame = require("../Models/userGame")
 const mongoose = require("mongoose");
+const PDFDocument = require("pdfkit");
 
 // Create a new game (Admin)
 // const createGame = async (req, res) => {
@@ -98,8 +99,11 @@ const getGameById = async (req, res) => {
   }
 };
 
+
+
+
 // Play a game (User)
-const playGame = async (req, res) => {
+const playGame =async (req, res) => {
   try {
     const { id } = req.params;
     const { userId, betAmount } = req.body;
@@ -151,6 +155,8 @@ const addUserGame = async (req, res) => {
     }
 
     // Find the user game record or create a new one
+    const currentDate = new Date(); // Capture the current date
+
     let userGame = await UserGame.findOne({ userId: userObjectId });
 
     if (userGame) {
@@ -160,6 +166,7 @@ const addUserGame = async (req, res) => {
         gameType,
         name,
         description,
+        bidDate: currentDate, // Add the date when the game is added
         betAmount,
       });
       userGame.totalBetAmount += betAmount;
@@ -211,6 +218,89 @@ const getUserGame = async (req, res) => {
 }
 
 
+const getAllUserGames = async (req, res) => {
+  try {
+    // Fetch all user game records and populate full game details
+    const userGames = await UserGame.find().populate('games.gameId'); // Populate game details
+
+    if (!userGames || userGames.length === 0) {
+      return res.status(404).json({ success: false, message: "No user games found" });
+    }
+
+    res.status(200).json({ success: true, data: userGames });
+  } catch (error) {
+    console.error("Error retrieving user games:", error);
+    res.status(500).json({ success: false, message: "Error retrieving user games", error: error.message });
+  }
+};
+
+// Example Route (if using Express)
+
+
+
+const getUserGamePDF = async (req, res) => {
+  try {
+    const { gameId } = req.body; // Expecting a specific game _id, NOT gameId._id
+
+    if (!mongoose.Types.ObjectId.isValid(gameId)) {
+      return res.status(400).json({ message: "Invalid gameId format" });
+    }
+
+    const objectIdGameId = new mongoose.Types.ObjectId(gameId);
+
+    // Fetch only the specific game entry where the _id matches
+    const userGame = await UserGame.findOne({ "games._id": objectIdGameId }).populate("games.gameId");
+
+    if (!userGame) {
+      return res.status(404).json({ message: "No game entry found for this ID" });
+    }
+
+    console.log("Matching User Game:", userGame);
+
+    const doc = new PDFDocument();
+
+    res.setHeader("Content-Disposition", "attachment; filename=user_game_data.pdf");
+    res.setHeader("Content-Type", "application/pdf");
+
+    doc.pipe(res);
+
+    doc.fontSize(20).text("User Game Data", { align: "center" });
+    doc.moveDown();
+
+    const game = userGame.games.find(g => g._id.toString() === gameId); // Get the single game entry
+
+    if (game) {
+      console.log("game", game);
+      
+      doc.fontSize(16).text(`Game: ${game.gameId.name}`);
+      doc.text(`Game Type: ${game.gameType}`);
+      doc.text(`Bet Amount: ${game.betAmount}`);
+    
+      // ✅ Handle `Map` inside `description` properly
+      let filteredDescription = "N/A";
+    
+      if (game?.description && Array.isArray(game.description) && game.description[0] instanceof Map) {
+        filteredDescription = Array.from(game.description[0].entries()) // Convert Map to array
+          .filter(([_, value]) => typeof value === "string" && value.trim() !== "") // Ensure value is a non-empty string
+          .map(([key, value]) => `${key}: ${value}`) // Format "index: value"
+          .join(", ");
+      }
+    
+      doc.text(`Bid Details: ${filteredDescription}`);
+      doc.moveDown();
+    }
+    
+
+    doc.end();
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    res.status(500).json({ error: "Failed to generate PDF" });
+  }
+};
+
+
+
+
 
 
 module.exports = {
@@ -221,5 +311,8 @@ module.exports = {
   getGameById,
   playGame,
   addUserGame ,
-  getUserGame 
+  getUserGame  ,
+  getUserGamePDF , 
+  getAllUserGames ,
+  
 };
