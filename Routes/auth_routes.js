@@ -14,7 +14,7 @@ const {
   updateCoins,
   getUserById,
   UserRegister , 
-  UpdateProfileName , 
+  UpdateProfileName , updatePasswordByAdmin
 } = require("../Controllers/auth_controller.js");
 
 const upload = multer();
@@ -33,5 +33,7 @@ router.get("/user/:id" , fetchuser ,  getUserById);
 router.put("/update/:id" , UpdateProfileName);
 
 router.put("/update", updateprofile);
+router.put("/updatePassword", updatePasswordByAdmin);
+
 router.post("/getotp", sendotp);
 module.exports = router;

@@ -325,6 +325,44 @@ const updateprofile = async (req, res) => {
 };
 
 
+
+
+const updatePasswordByAdmin = async (req, res) => {
+  try {
+    const { id, newPassword } = req.body;
+
+    if (!id || !newPassword) {
+      return res
+        .status(400)
+        .json({ error: "User ID and new password are required." });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update the user's password in the database
+    user.password = hashedPassword;
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: "Password updated successfully by admin." });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res.status(500).json({ error: "Internal Server Error." });
+  }
+};
+
+
+
+
+
 const UpdateProfileName = async (req, res) => {
   const { id } = req.params; // User ID from the route
   const { name } = req.body; // New username from the request body
@@ -522,6 +560,7 @@ module.exports = {
   updateCoins ,
   getUserById , 
   UserRegister ,
-  UpdateProfileName 
+  UpdateProfileName , 
+  updatePasswordByAdmin
 
 }
